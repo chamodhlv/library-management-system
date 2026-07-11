@@ -1,4 +1,7 @@
 package com.chamodh.library_management_system.repository;
 
-public interface AuthorRepository {
+import com.chamodh.library_management_system.entity.Author;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AuthorRepository extends JpaRepository<Author, Long> {
 }
