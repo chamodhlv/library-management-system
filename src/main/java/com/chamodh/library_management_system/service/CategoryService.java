@@ -3,6 +3,7 @@ package com.chamodh.library_management_system.service;
 import com.chamodh.library_management_system.dto.CategoryRequestDto;
 import com.chamodh.library_management_system.dto.CategoryResponseDto;
 import com.chamodh.library_management_system.entity.Category;
+import com.chamodh.library_management_system.exception.ResourceNotFoundException;
 import com.chamodh.library_management_system.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class CategoryService {
 
     public CategoryResponseDto getCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
         return mapToResponseDto(category);
     }
 
@@ -38,7 +39,7 @@ public class CategoryService {
 
     public CategoryResponseDto updateCategory(Long id, CategoryRequestDto requestDto) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
 
         category.setName(requestDto.getName());
 
@@ -48,7 +49,7 @@ public class CategoryService {
 
     public void deleteCategory(Long id) {
         if (!categoryRepository.existsById(id)) {
-            throw new RuntimeException("Category not found with id: " + id);
+            throw new ResourceNotFoundException("Category not found with id: " + id);
         }
         categoryRepository.deleteById(id);
     }
