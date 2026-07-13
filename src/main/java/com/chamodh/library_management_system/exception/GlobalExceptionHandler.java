@@ -2,14 +2,14 @@ package com.chamodh.library_management_system.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
-// This class intercepts exceptions thrown from ANY controller in the app -
-// you don't need try/catch blocks scattered everywhere
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -34,17 +34,34 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    // This fires whenever @Valid fails on a @RequestBody DTO -
+    // e.g. client sends {"name": ""} and AuthorRequestDto requires @NotBlank name
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
+                // e.g. "name: Name is required" - pulls the EXACT message
+                // we wrote in @NotBlank(message = "...") on the DTO
+                .collect(Collectors.joining(", "));
+        // If multiple fields fail at once, they're joined into one readable string,
+        // e.g. "name: Name is required, isbn: ISBN is required"
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                message
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
-    // Catch-all fallback - anything unexpected still gets a clean JSON response
-    // instead of an ugly stack trace, even if we didn't anticipate it
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 "An unexpected error occurred"
-                // Deliberately vague here - don't leak internal error details
-                // (e.g. database connection strings, stack traces) to the client
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
