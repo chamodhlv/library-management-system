@@ -70,6 +70,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
+        ex.printStackTrace();
+        // <-- just this one new line added here
+
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
