@@ -2,6 +2,7 @@ package com.chamodh.library_management_system.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -35,16 +36,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    // This fires whenever @Valid fails on a @RequestBody DTO -
-    // e.g. client sends {"name": ""} and AuthorRequestDto requires @NotBlank name
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
-                // e.g. "name: Name is required" - pulls the EXACT message
-                // we wrote in @NotBlank(message = "...") on the DTO
                 .collect(Collectors.joining(", "));
-        // If multiple fields fail at once, they're joined into one readable string,
-        // e.g. "name: Name is required, isbn: ISBN is required"
 
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
@@ -53,6 +48,24 @@ public class GlobalExceptionHandler {
                 message
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    // Catches Spring Security's authentication failures - wrong email,
+    // wrong password, user doesn't exist, etc. This is the PARENT class
+    // for several specific auth exceptions (BadCredentialsException, etc.),
+    // so catching it here covers all of them at once
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                "Invalid email or password"
+                // Deliberately vague - never confirm/deny WHICH part was wrong
+                // (e.g. don't say "email not found" vs "wrong password" separately) -
+                // that would let an attacker enumerate valid emails in your system
+        );
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(Exception.class)
