@@ -52,8 +52,6 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // ADD THIS LINE - tells Spring Security to apply the CORS bean above
-
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -61,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET,
                                 "/api/books/**", "/api/authors/**", "/api/categories/**").permitAll()
+                        .requestMatchers("/api/members/me").authenticated()
                         .requestMatchers("/api/books/**", "/api/authors/**", "/api/categories/**")
                         .hasRole("LIBRARIAN")
                         .requestMatchers("/api/members/**").hasRole("LIBRARIAN")

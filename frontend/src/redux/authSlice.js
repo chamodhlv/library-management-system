@@ -1,17 +1,26 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axiosInstance from "../api/axiosInstance";
+
+export const fetchCurrentMember = createAsyncThunk(
+  "auth/fetchCurrentMember",
+  async () => {
+    const response = await axiosInstance.get("/members/me");
+    return response.data;
+    // Returns MemberResponseDto: { id, name, email, phoneNumber, membershipDate }
+  },
+);
 
 const storedToken = localStorage.getItem("token");
 const storedEmail = localStorage.getItem("email");
 const storedRole = localStorage.getItem("role");
-// On app load, check if we already have auth info saved from a previous session -
-// this is what makes "staying logged in after refresh" work
 
 const initialState = {
   token: storedToken || null,
   email: storedEmail || null,
   role: storedRole || null,
+  memberId: null,
+  // NEW - not persisted to localStorage, refetched fresh on app load instead
   isAuthenticated: !!storedToken,
-  // !!storedToken converts "string or null" into a clean true/false
 };
 
 const authSlice = createSlice({
@@ -25,7 +34,6 @@ const authSlice = createSlice({
       state.role = role;
       state.isAuthenticated = true;
 
-      // Persist to localStorage so a page refresh doesn't log the user out
       localStorage.setItem("token", token);
       localStorage.setItem("email", email);
       localStorage.setItem("role", role);
@@ -34,12 +42,18 @@ const authSlice = createSlice({
       state.token = null;
       state.email = null;
       state.role = null;
+      state.memberId = null;
       state.isAuthenticated = false;
 
       localStorage.removeItem("token");
       localStorage.removeItem("email");
       localStorage.removeItem("role");
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchCurrentMember.fulfilled, (state, action) => {
+      state.memberId = action.payload.id;
+    });
   },
 });
 

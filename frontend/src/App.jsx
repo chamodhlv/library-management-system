@@ -4,6 +4,7 @@ import ProtectedRoute from "./components/layout/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import CatalogPage from "./pages/CatalogPage";
+import MyBorrowsPage from "./pages/MyBorrowsPage";
 
 function App() {
   return (
@@ -19,10 +20,7 @@ function App() {
 
           {/* Any authenticated user (MEMBER or LIBRARIAN) */}
           <Route element={<ProtectedRoute />}>
-            <Route
-              path="/my-borrows"
-              element={<div className="p-8">My Borrows - coming soon</div>}
-            />
+            <Route path="/my-borrows" element={<MyBorrowsPage />} />
           </Route>
 
           {/* LIBRARIAN only */}

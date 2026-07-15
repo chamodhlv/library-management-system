@@ -1,4 +1,6 @@
 package com.chamodh.library_management_system.controller;
+import com.chamodh.library_management_system.entity.Member;
+import org.springframework.security.core.Authentication;
 
 import com.chamodh.library_management_system.dto.MemberRequestDto;
 import com.chamodh.library_management_system.dto.MemberResponseDto;
@@ -58,5 +60,12 @@ public class MemberController {
     public ResponseEntity<Void> deleteMember(@PathVariable Long id) {
         memberService.deleteMember(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MemberResponseDto> getCurrentMember(Authentication authentication) {
+        Member member = (Member) authentication.getPrincipal();
+        MemberResponseDto response = memberService.getMemberById(member.getId());
+        return ResponseEntity.ok(response);
     }
 }
