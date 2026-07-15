@@ -20,7 +20,7 @@ function Sidebar() {
   return (
     <aside className="w-64 min-h-screen bg-white border-r border-espresso/10 flex flex-col p-4">
       <h1 className="font-serif font-bold text-2xl text-espresso mb-8 px-2">
-        Library
+        LibraryPro///
       </h1>
 
       <nav className="flex-1 space-y-1">

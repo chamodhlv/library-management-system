@@ -1,4 +1,5 @@
 package com.chamodh.library_management_system.controller;
+import com.chamodh.library_management_system.dto.UpdateRoleRequestDto;
 import com.chamodh.library_management_system.entity.Member;
 import org.springframework.security.core.Authentication;
 
@@ -67,5 +68,13 @@ public class MemberController {
         Member member = (Member) authentication.getPrincipal();
         MemberResponseDto response = memberService.getMemberById(member.getId());
         return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/role")
+    public ResponseEntity<MemberResponseDto> updateRole(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateRoleRequestDto requestDto) {
+        MemberResponseDto updated = memberService.updateRole(id, requestDto.getRole());
+        return ResponseEntity.ok(updated);
     }
 }

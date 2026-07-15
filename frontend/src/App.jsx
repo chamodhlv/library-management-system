@@ -8,6 +8,11 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import CatalogPage from "./pages/CatalogPage";
 import MyBorrowsPage from "./pages/MyBorrowsPage";
+import ManageAuthorsPage from "./pages/librarian/ManageAuthorsPage";
+import ManageCategoriesPage from "./pages/librarian/ManageCategoriesPage";
+import ManageBooksPage from "./pages/librarian/ManageBooksPage";
+import ManageMembersPage from "./pages/librarian/ManageMembersPage";
+import AllBorrowRecordsPage from "./pages/librarian/AllBorrowRecordsPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -35,29 +40,16 @@ function App() {
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["LIBRARIAN"]} />}>
-            <Route
-              path="/librarian/books"
-              element={<div className="p-8">Manage Books - coming soon</div>}
-            />
-            <Route
-              path="/librarian/authors"
-              element={<div className="p-8">Manage Authors - coming soon</div>}
-            />
+            <Route path="/librarian/books" element={<ManageBooksPage />} />
+            <Route path="/librarian/authors" element={<ManageAuthorsPage />} />
             <Route
               path="/librarian/categories"
-              element={
-                <div className="p-8">Manage Categories - coming soon</div>
-              }
+              element={<ManageCategoriesPage />}
             />
-            <Route
-              path="/librarian/members"
-              element={<div className="p-8">Manage Members - coming soon</div>}
-            />
+            <Route path="/librarian/members" element={<ManageMembersPage />} />
             <Route
               path="/librarian/borrow-records"
-              element={
-                <div className="p-8">All Borrow Records - coming soon</div>
-              }
+              element={<AllBorrowRecordsPage />}
             />
           </Route>
         </Route>
