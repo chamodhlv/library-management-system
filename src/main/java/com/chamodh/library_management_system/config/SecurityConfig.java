@@ -15,6 +15,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -47,40 +51,47 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                // CSRF protection is for browser-based session/cookie auth -
-                // irrelevant for a stateless JWT API, safe to disable here
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // ADD THIS LINE - tells Spring Security to apply the CORS bean above
 
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // STATELESS - tells Spring Security "don't create or use HTTP sessions,
-                // every request must prove who it is via the JWT alone"
-
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/api/auth/**").permitAll()
-
-                                .requestMatchers(org.springframework.http.HttpMethod.GET,
-                                        "/api/books/**", "/api/authors/**", "/api/categories/**").permitAll()
-
-                                .requestMatchers("/api/books/**", "/api/authors/**", "/api/categories/**")
-                                .hasRole("LIBRARIAN")
-
-                                .requestMatchers("/api/members/**").hasRole("LIBRARIAN")
-
-                                .requestMatchers("/api/borrow-records/**").authenticated()
-
-                                .anyRequest().authenticated()
-                        // Catch-all safety net - anything not explicitly listed above
-                        // still requires authentication by default
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET,
+                                "/api/books/**", "/api/authors/**", "/api/categories/**").permitAll()
+                        .requestMatchers("/api/books/**", "/api/authors/**", "/api/categories/**")
+                        .hasRole("LIBRARIAN")
+                        .requestMatchers("/api/members/**").hasRole("LIBRARIAN")
+                        .requestMatchers("/api/borrow-records/**").authenticated()
+                        .anyRequest().authenticated()
                 )
-
                 .authenticationProvider(authenticationProvider())
-
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        // Plugs our custom JWT filter into Spring Security's chain,
-        // running BEFORE Spring's own username/password filter -
-        // this is what actually makes our JwtAuthenticationFilter run on every request
 
         return http.build();
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        // Only allow requests from your React dev server's exact origin
+
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        // Allow any request header - simplest for development;
+        // could be tightened to just "Authorization", "Content-Type" later
+
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        // Apply this CORS policy to every endpoint in the app
+
+        return source;
+    }
+
+
 }
