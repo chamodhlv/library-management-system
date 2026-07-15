@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import axiosInstance from "../api/axiosInstance";
-import { setCredentials } from "../redux/authSlice";
+import { setCredentials, fetchCurrentMember } from "../redux/authSlice";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -30,6 +30,10 @@ function LoginPage() {
 
       dispatch(setCredentials({ token, email: userEmail, role }));
       // This updates Redux state AND saves to localStorage (handled inside the slice)
+
+      await dispatch(fetchCurrentMember());
+      // Fetches the logged-in member's own id via GET /api/members/me,
+      // needed later for the "My Borrows" page
 
       navigate("/catalog");
       // Redirect to the main catalog page after successful login

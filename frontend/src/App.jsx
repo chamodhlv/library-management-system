@@ -1,13 +1,66 @@
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { fetchCurrentMember } from "./redux/authSlice";
+import AppLayout from "./components/layout/AppLayout";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import CatalogPage from "./pages/CatalogPage";
+import MyBorrowsPage from "./pages/MyBorrowsPage";
 
 function App() {
+  const dispatch = useDispatch();
+  const { isAuthenticated, memberId } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (isAuthenticated && !memberId) {
+      dispatch(fetchCurrentMember());
+      // Runs once when the app first loads - if we're logged in (token exists
+      // in localStorage) but don't yet have memberId in memory, fetch it now
+    }
+  }, [isAuthenticated, memberId, dispatch]);
+
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/catalog" element={<CatalogPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        <Route element={<AppLayout />}>
+          <Route path="/catalog" element={<CatalogPage />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/my-borrows" element={<MyBorrowsPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={["LIBRARIAN"]} />}>
+            <Route
+              path="/librarian/books"
+              element={<div className="p-8">Manage Books - coming soon</div>}
+            />
+            <Route
+              path="/librarian/authors"
+              element={<div className="p-8">Manage Authors - coming soon</div>}
+            />
+            <Route
+              path="/librarian/categories"
+              element={
+                <div className="p-8">Manage Categories - coming soon</div>
+              }
+            />
+            <Route
+              path="/librarian/members"
+              element={<div className="p-8">Manage Members - coming soon</div>}
+            />
+            <Route
+              path="/librarian/borrow-records"
+              element={
+                <div className="p-8">All Borrow Records - coming soon</div>
+              }
+            />
+          </Route>
+        </Route>
       </Routes>
     </BrowserRouter>
   );
