@@ -1,24 +1,29 @@
 package com.chamodh.library_management_system.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "books")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+// Replaces @Data's automatic equals/hashCode with one that ONLY uses
+// fields we explicitly mark below - breaks the circular reference problem
 public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    // Only the id counts toward equals/hashCode - safe, never circular,
+    // and this is genuinely what "equality" should mean for a JPA entity anyway
     private Long id;
 
     @Column(nullable = false)
@@ -35,12 +40,10 @@ public class Book {
 
     @ManyToMany
     @JoinTable(
-            name = "book_authors",                              // the actual join table Hibernate creates in Postgres
-            joinColumns = @JoinColumn(name = "book_id"),         // FK column pointing back to this Book
-            inverseJoinColumns = @JoinColumn(name = "author_id") // FK column pointing to the related Author
+            name = "book_authors",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
     )
-    // Book is the OWNING side here - this @JoinTable annotation is what
-    // actually creates the join table. Author's `mappedBy = "authors"` just points here.
     private Set<Author> authors = new HashSet<>();
 
     @ManyToMany
@@ -52,8 +55,5 @@ public class Book {
     private Set<Category> categories = new HashSet<>();
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-    // mappedBy = "book" - BorrowRecord owns this relationship (it'll have a @ManyToOne back to Book)
-    // cascade = ALL - if a Book gets deleted, its borrow records get deleted too (careful with this in production,
-    // but fine for a portfolio project - we'll discuss soft-deletes later if you want)
     private List<BorrowRecord> borrowRecords = new ArrayList<>();
 }
