@@ -1,3 +1,5 @@
+![Dashboard](./screenshot.png)
+
 # Library Management System
 
 A full-stack library management system with JWT-based authentication, role-based access control, and a complete borrowing/returning workflow with automatic fine calculation. Built as a portfolio project to demonstrate production-shaped backend architecture (Spring Boot) paired with a modern React frontend.
@@ -14,12 +16,14 @@ A full-stack library management system with JWT-based authentication, role-based
 ## Tech Stack
 
 **Backend**
+
 - Java 21, Spring Boot 4.1
 - Spring Data JPA (Hibernate) + PostgreSQL
 - Spring Security with JWT (jjwt)
 - Maven
 
 **Frontend**
+
 - React (Vite)
 - Redux Toolkit
 - React Router
@@ -27,6 +31,7 @@ A full-stack library management system with JWT-based authentication, role-based
 - Axios
 
 **Infrastructure**
+
 - Docker (PostgreSQL container)
 
 ## Architecture
@@ -69,6 +74,7 @@ Category ─┘                    ├── Book ──< BorrowRecord >── M
 ## Getting Started
 
 ### Prerequisites
+
 - JDK 21+
 - Node.js 18+
 - Docker
@@ -76,6 +82,7 @@ Category ─┘                    ├── Book ──< BorrowRecord >── M
 ### Backend Setup
 
 1. Start PostgreSQL via Docker:
+
    ```bash
    docker compose up -d
    ```
@@ -83,6 +90,7 @@ Category ─┘                    ├── Book ──< BorrowRecord >── M
 2. Configure `src/main/resources/application.properties` (see `application.properties.example` if provided, or set your own DB credentials and JWT secret).
 
 3. Run the Spring Boot application:
+
    ```bash
    ./mvnw spring-boot:run
    ```
@@ -92,12 +100,14 @@ Category ─┘                    ├── Book ──< BorrowRecord >── M
 ### Frontend Setup
 
 1. Navigate to the frontend directory:
+
    ```bash
    cd frontend
    npm install
    ```
 
 2. Start the development server:
+
    ```bash
    npm run dev
    ```
@@ -106,22 +116,22 @@ Category ─┘                    ├── Book ──< BorrowRecord >── M
 
 ## API Overview
 
-| Method | Endpoint | Access |
-|---|---|---|
-| POST | `/api/auth/register` | Public |
-| POST | `/api/auth/login` | Public |
-| GET | `/api/books` | Public |
-| GET | `/api/books/search?title=` | Public |
-| POST/PUT/DELETE | `/api/books/**` | LIBRARIAN |
-| GET | `/api/authors`, `/api/categories` | Public |
-| POST/PUT/DELETE | `/api/authors/**`, `/api/categories/**` | LIBRARIAN |
-| GET | `/api/members/me` | Authenticated |
-| GET | `/api/members` | LIBRARIAN |
-| PATCH | `/api/members/{id}/role` | LIBRARIAN |
-| POST | `/api/borrow-records/borrow` | Authenticated |
-| PATCH | `/api/borrow-records/{id}/return` | Authenticated |
-| GET | `/api/borrow-records/member/{memberId}` | Authenticated |
-| GET | `/api/borrow-records/currently-borrowed` | LIBRARIAN |
+| Method          | Endpoint                                 | Access        |
+| --------------- | ---------------------------------------- | ------------- |
+| POST            | `/api/auth/register`                     | Public        |
+| POST            | `/api/auth/login`                        | Public        |
+| GET             | `/api/books`                             | Public        |
+| GET             | `/api/books/search?title=`               | Public        |
+| POST/PUT/DELETE | `/api/books/**`                          | LIBRARIAN     |
+| GET             | `/api/authors`, `/api/categories`        | Public        |
+| POST/PUT/DELETE | `/api/authors/**`, `/api/categories/**`  | LIBRARIAN     |
+| GET             | `/api/members/me`                        | Authenticated |
+| GET             | `/api/members`                           | LIBRARIAN     |
+| PATCH           | `/api/members/{id}/role`                 | LIBRARIAN     |
+| POST            | `/api/borrow-records/borrow`             | Authenticated |
+| PATCH           | `/api/borrow-records/{id}/return`        | Authenticated |
+| GET             | `/api/borrow-records/member/{memberId}`  | Authenticated |
+| GET             | `/api/borrow-records/currently-borrowed` | LIBRARIAN     |
 
 ## Key Design Decisions
 
