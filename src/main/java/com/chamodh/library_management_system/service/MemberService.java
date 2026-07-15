@@ -71,13 +71,24 @@ public class MemberService {
         memberRepository.deleteById(id);
     }
 
+    public MemberResponseDto updateRole(Long id, Member.Role newRole) {
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Member not found with id: " + id));
+
+        member.setRole(newRole);
+        Member updated = memberRepository.save(member);
+        return mapToResponseDto(updated);
+    }
+
     private MemberResponseDto mapToResponseDto(Member member) {
         return new MemberResponseDto(
                 member.getId(),
                 member.getName(),
                 member.getEmail(),
                 member.getPhoneNumber(),
-                member.getMembershipDate()
+                member.getMembershipDate(),
+                member.getRole()
+                // ADDED
         );
     }
 }
