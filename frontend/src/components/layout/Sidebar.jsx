@@ -16,8 +16,6 @@ function Sidebar() {
     `block px-4 py-2 rounded-md text-sm font-medium transition-colors ${
       isActive ? "bg-espresso text-cream" : "text-espresso hover:bg-espresso/10"
     }`;
-  // NavLink gives us isActive automatically - highlights whichever
-  // page the user is currently on
 
   return (
     <aside className="w-64 min-h-screen bg-white border-r border-espresso/10 flex flex-col p-4">
@@ -30,7 +28,7 @@ function Sidebar() {
           Catalog
         </NavLink>
 
-        {isAuthenticated && (
+        {isAuthenticated && role === "MEMBER" && (
           <NavLink to="/my-borrows" className={linkClasses}>
             My Borrows
           </NavLink>
@@ -38,9 +36,6 @@ function Sidebar() {
 
         {isAuthenticated && role === "LIBRARIAN" && (
           <>
-            <div className="pt-4 pb-1 px-2 text-xs font-semibold text-espresso/40 uppercase tracking-wide">
-              Librarian
-            </div>
             <NavLink to="/librarian/books" className={linkClasses}>
               Manage Books
             </NavLink>
@@ -63,7 +58,10 @@ function Sidebar() {
       <div className="border-t border-espresso/10 pt-4 mt-4">
         {isAuthenticated ? (
           <div className="px-2">
-            <p className="text-xs text-espresso/50 mb-2 truncate">{email}</p>
+            <p className="text-xs text-espresso/50 truncate">{email}</p>
+            <p className="text-xs text-espresso/40 mb-2 uppercase tracking-wide">
+              {role}
+            </p>
             <button
               onClick={handleLogout}
               className="w-full text-left px-2 py-2 rounded-md text-sm font-medium
