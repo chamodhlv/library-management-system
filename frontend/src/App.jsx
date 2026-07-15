@@ -1,4 +1,7 @@
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { fetchCurrentMember } from "./redux/authSlice";
 import AppLayout from "./components/layout/AppLayout";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
@@ -7,23 +10,30 @@ import CatalogPage from "./pages/CatalogPage";
 import MyBorrowsPage from "./pages/MyBorrowsPage";
 
 function App() {
+  const dispatch = useDispatch();
+  const { isAuthenticated, memberId } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (isAuthenticated && !memberId) {
+      dispatch(fetchCurrentMember());
+      // Runs once when the app first loads - if we're logged in (token exists
+      // in localStorage) but don't yet have memberId in memory, fetch it now
+    }
+  }, [isAuthenticated, memberId, dispatch]);
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public - no sidebar */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* Everyone (including guests) - sidebar layout */}
         <Route element={<AppLayout />}>
           <Route path="/catalog" element={<CatalogPage />} />
 
-          {/* Any authenticated user (MEMBER or LIBRARIAN) */}
           <Route element={<ProtectedRoute />}>
             <Route path="/my-borrows" element={<MyBorrowsPage />} />
           </Route>
 
-          {/* LIBRARIAN only */}
           <Route element={<ProtectedRoute allowedRoles={["LIBRARIAN"]} />}>
             <Route
               path="/librarian/books"

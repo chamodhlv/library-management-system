@@ -21,6 +21,18 @@ export const returnBook = createAsyncThunk(
   },
 );
 
+export const borrowBook = createAsyncThunk(
+  "borrow/borrowBook",
+  async ({ memberId, bookId }) => {
+    const response = await axiosInstance.post("/borrow-records/borrow", {
+      memberId,
+      bookId,
+    });
+    return response.data;
+    // Matches your backend's BorrowRequestDto: { memberId, bookId }
+  },
+);
+
 const borrowSlice = createSlice({
   name: "borrow",
   initialState: {
@@ -51,6 +63,11 @@ const borrowSlice = createSlice({
         // Instead of re-fetching the whole list after returning a book,
         // we just swap the single updated record in place - faster,
         // and Immer (used internally by Toolkit) lets us "mutate" state directly here safely
+      })
+      .addCase(borrowBook.fulfilled, (state, action) => {
+        state.items.push(action.payload);
+        // Add the newly created borrow record straight into state -
+        // "My Borrows" page will show it immediately without a refetch
       });
   },
 });
